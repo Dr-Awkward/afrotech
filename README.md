@@ -67,8 +67,8 @@ This solution directly addresses the challenges faced by healthcare professional
 ## Future Enhancements
 
 1. Integration with Electronic Health Record (EHR) systems.
-2. Expansion to support more languages, improving accessibility for non-English speaking communities.
-3. Development of a user-friendly interface for real-time editing and customization of AI-generated reports.
+2. Automatic templating to speed up the onboarding process. 
+3. Development of a more user-friendly interface for real-time editing and customization of AI-generated reports.
 
 ---
 
