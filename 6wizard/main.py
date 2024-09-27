@@ -64,10 +64,10 @@ def get_chatgpt_response(messages, system_prompt):
     """Get a response from ChatGPT."""
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Specify your model here
+            model="gpt-3.5-turbo",  
             messages=messages,
             max_tokens=1500,
-            temperature=0.7
+            temperature=0.0
         )
         return response.choices[0].message.content
     except Exception as e:
