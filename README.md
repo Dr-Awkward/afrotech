@@ -69,6 +69,7 @@ This solution directly addresses the challenges faced by healthcare professional
 1. Integration with Electronic Health Record (EHR) systems.
 2. Automatic templating to speed up the onboarding process. 
 3. Development of a more user-friendly interface for real-time editing and customization of AI-generated reports.
+4. Potential to have first mover advantage at one of, if not the largest data lakes available. 
 
 ---
 
