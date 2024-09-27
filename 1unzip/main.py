@@ -1,0 +1,112 @@
+import functions_framework
+from google.cloud import storage
+import os
+import shutil
+import zipfile
+import tempfile
+from pdf2image import convert_from_path
+from google.cloud import pubsub_v1
+import re
+
+def pdf_to_jpeg(pdf_path, output_folder, dpi=200):
+    """
+    Converts a PDF to JPEG, puts them in subfolders.
+    """
+    images = convert_from_path(pdf_path, dpi=dpi)
+    pdf_name = os.path.splitext(os.path.basename(pdf_path))[0]  # Get the PDF filename without extension
+
+    subfolder_count = 0
+    image_count = 0
+    for i, image in enumerate(images):
+        if image_count % 10 == 0:  # Create new subfolder every 10 images
+            subfolder_count += 1
+            current_output_folder = os.path.join(output_folder, pdf_name, f"subfolder_{subfolder_count:02d}")
+            os.makedirs(current_output_folder, exist_ok=True)
+
+        image_filename = f"image_{i+1:02d}.jpeg"  # Format filename with leading zeros
+        image_path = os.path.join(current_output_folder, image_filename)
+        image.save(image_path, "JPEG")
+        image_count += 1
+
+def process_directory(directory):
+    """
+    Process all PDF files in the given directory and its subdirectories.
+    """
+    for root, _, files in os.walk(directory):
+        pdf_files = [f for f in files if f.lower().endswith('.pdf')]
+        for pdf_file in pdf_files:
+            pdf_path = os.path.join(root, pdf_file)
+            output_dir = os.path.join(root, "image")
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            pdf_to_jpeg(pdf_path, output_dir)
+
+# Triggered by a change in a storage bucket
+@functions_framework.cloud_event
+def process_archive(cloud_event):
+    data = cloud_event.data
+
+    event_id = cloud_event["id"]
+    event_type = cloud_event["type"]
+
+    bucket_name = data["bucket"]
+    file_name = data["name"]
+
+    print(f"Event ID: {event_id}")
+    print(f"Event type: {event_type}")
+    print(f"Bucket: {bucket_name}")
+    print(f"File: {file_name}")
+
+    # Check if the file is an archive
+    if not any(file_name.endswith(ext) for ext in ['.zip', '.7z', '.gzip']):
+        print(f"Skipping non-archive file: {file_name}")
+        return
+
+    # Extract the folder name from the file name (improved)
+    folder_name = re.match(r"^(.*?)_.*\.(zip|7z|gzip)$", file_name)
+    if folder_name:
+        folder_name = folder_name.group(1)  # Extract the first capture group
+    else:
+        print(f"Error: Invalid archive filename format: {file_name}")
+        return  # Or handle the error differently, depending on your needs
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Download the file from the bucket
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(file_name)
+        blob.download_to_filename(os.path.join(temp_dir, file_name))
+
+        # Extract the archive
+        if file_name.endswith('.zip'):
+            with zipfile.ZipFile(os.path.join(temp_dir, file_name), 'r') as zip_ref:
+                zip_ref.extractall(temp_dir)
+
+        # Process the extracted files using the pdf_to_jpeg function
+        process_directory(temp_dir)
+
+        # Create the destination folder in the bucket, named after the archive
+        destination_folder = f"{folder_name}_images/" 
+
+        # Upload the processed files (JPEGs) to the destination folder
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                if file.lower().endswith('.jpeg'):  # Only upload JPEGs
+                    file_path = os.path.join(root, file)
+                    blob_path = os.path.relpath(file_path, temp_dir)
+                    blob_destination = bucket.blob(os.path.join(destination_folder, blob_path))
+                    blob_destination.upload_from_filename(file_path)
+
+        print(f"Processed images uploaded to: {destination_folder} in bucket {bucket_name}")
+
+def publish_message(project_id, topic_id, message):
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(project_id, topic_id)  
+
+    data = message.encode("utf-8")
+    future = publisher.publish(topic_path, data)
+    print(future.result())
+
+# After file upload and cleanup
+if re.match(r"^\w+_images/$", destination_folder):  # Check if it matches the pattern
+    publish_message(project_id='alligator-snapper', topic_id='file-uploaded', message=destination_folder)

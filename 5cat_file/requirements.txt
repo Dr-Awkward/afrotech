@@ -1,0 +1,5 @@
+google-cloud-storage
+google-auth
+google-cloud-secret-manager
+anthropic
+Pillow 

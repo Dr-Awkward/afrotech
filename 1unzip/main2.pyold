@@ -1,0 +1,223 @@
+import functions_framework
+from google.cloud import storage
+import os
+import shutil
+import zipfile
+import tempfile
+from pdf2image import convert_from_path
+import anthropic
+import glob
+import base64
+from PIL import Image
+import io
+import time
+import sys
+import traceback
+import logging
+
+# Set up logging to log.txt
+logging.basicConfig(
+    filename='log.txt',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+# --- PDF to JPEG conversion functions ---
+
+def pdf_to_jpeg(pdf_path, output_folder, dpi=200):    
+    images = convert_from_path(pdf_path, dpi=dpi)
+    pdf_name = os.path.splitext(os.path.basename(pdf_path))[0] 
+    subfolder_count = 0
+    image_count = 0
+    for i, image in enumerate(images):
+        if image_count % 10 == 0: 
+            subfolder_count += 1
+            current_output_folder = os.path.join(output_folder, pdf_name, f"subfolder_{subfolder_count:02d}")
+            os.makedirs(current_output_folder, exist_ok=True)
+
+        image_filename = f"image_{i+1:02d}.jpeg" 
+        image_path = os.path.join(current_output_folder, image_filename)
+        image.save(image_path, "JPEG")
+        image_count += 1
+    logging.info(f"Converted {len(images)} pages of {pdf_name} to JPEG.")
+
+def process_directory(directory):
+    for root, _, files in os.walk(directory):
+        pdf_files = [f for f in files if f.lower().endswith('.pdf')]
+        for pdf_file in pdf_files:
+            pdf_path = os.path.join(root, pdf_file)
+            output_dir = os.path.join(root, "image")
+            os.makedirs(output_dir, exist_ok=True)
+            pdf_to_jpeg(pdf_path, output_dir)
+
+# --- Cloud function trigger ---
+
+@functions_framework.cloud_event
+def process_archive(cloud_event):
+    data = cloud_event.data
+    event_id = cloud_event["id"]
+    event_type = cloud_event["type"]
+
+    bucket_name = data["bucket"]
+    file_name = data["name"]
+
+    logging.info(f"Event ID: {event_id}")
+    logging.info(f"Event type: {event_type}")
+    logging.info(f"Bucket: {bucket_name}")
+    logging.info(f"File: {file_name}")
+
+    if not any(file_name.endswith(ext) for ext in ['.zip', '.7z', '.gzip']):
+        logging.warning(f"Skipping non-archive file: {file_name}")
+        return
+
+    folder_name = file_name.split("_")[0]
+
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            storage_client = storage.Client()
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(file_name)
+            blob.download_to_filename(os.path.join(temp_dir, file_name))
+            logging.info(f"Downloaded {file_name} to temporary directory.")
+
+            if file_name.endswith('.zip'):
+                with zipfile.ZipFile(os.path.join(temp_dir, file_name), 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+                    logging.info(f"Extracted {file_name}.")
+
+            process_directory_and_analyze(temp_dir)
+
+            destination_folder = f"{folder_name}_images/" 
+
+            for root, _, files in os.walk(temp_dir):
+                for file in files:
+                    if file.lower().endswith('.jpeg'): 
+                        file_path = os.path.join(root, file)
+                        blob_path = os.path.relpath(file_path, temp_dir)
+                        blob_destination = bucket.blob(os.path.join(destination_folder, blob_path))
+                        blob_destination.upload_from_filename(file_path)
+                        logging.info(f"Uploaded {file} to {destination_folder}.")
+
+            logging.info(f"Processed images uploaded to: {destination_folder} in bucket {bucket_name}")
+
+    except Exception as e:
+        logging.error(f"Error processing archive {file_name}: {str(e)}")
+        logging.error(traceback.format_exc())
+
+# --- Image analysis functions ---
+
+def read_file(filename):
+    try:
+        with open(filename, 'r', encoding="utf-8-sig") as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        logging.error(f"File not found: {filename}")
+        raise
+    except IOError:
+        logging.error(f"Unable to read file: {filename}")
+        raise
+
+def read_and_resize_image(file_path, max_size=(1568, 1568)):
+    try:
+        with Image.open(file_path) as img:
+            img.thumbnail(max_size)
+            buffered = io.BytesIO()
+            img.save(buffered, format="JPEG")
+            encoded = base64.b64encode(buffered.getvalue()).decode('utf-8')
+            logging.info(f"Encoded image from {file_path}. First 20 characters: {encoded[:20]}")
+            return encoded
+    except IOError:
+        logging.error(f"Unable to open or process image: {file_path}")
+        raise
+
+def process_folder(folder_path, client, system_prompt, user_prompt):
+    try:
+        jpeg_files = glob.glob(os.path.join(folder_path, "*.jpg")) + glob.glob(os.path.join(folder_path, "*.jpeg"))
+        if not jpeg_files:
+            logging.warning(f"No JPEG files found in {folder_path}. Skipping.")
+            return
+
+        content = []
+
+        image_files = glob.glob(os.path.join(folder_path, "image*.jpeg"))
+        logging.info(f"Image files found in {folder_path}: {image_files}")
+
+        if image_files:
+            for i, file in enumerate(image_files, 1):
+                content.append({
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/jpeg",
+                        "data": read_and_resize_image(file)
+                    }
+                })
+                content.append({
+                    "type": "text",
+                    "text": f"Image {i}:"
+                })
+
+        content.append({
+            "type": "text",
+            "text": user_prompt
+        })
+
+        logging.info(f"Number of items in content list: {len(content)}")
+        for i, item in enumerate(content):
+            if item['type'] == 'image':
+                logging.info(f"Item {i} is an image. First 50 characters of base64 data: {item['source']['data'][:50]}")
+            elif item['type'] == 'text':
+                logging.info(f"Item {i} is text. Content: {item['text']}")
+
+        try:
+            response = client.messages.create(
+                model="claude-3-5-sonnet-20240620",
+                max_tokens=8192,
+                extra_headers={"anthropic-beta": "max-tokens-3-5-sonnet-2024-07-15"},
+                system=system_prompt,
+                messages=[{"role": "user", "content": content}]
+            )
+        except anthropic.APIError as e:
+            logging.error(f"Anthropic API error: {str(e)}")
+            raise
+
+        assistant_response = response.content[0].text
+
+        parent_dir = os.path.basename(os.path.dirname(folder_path))
+        grandparent_dir = os.path.basename(os.path.dirname(os.path.dirname(folder_path)))
+
+        output_file_name = f'Youre_A_Wizard_Harry_{grandparent_dir}_{parent_dir}_{os.path.basename(folder_path)}.txt'
+        try:
+            with open(output_file_name, 'w') as output_file:
+                output_file.write(assistant_response)
+            logging.info(f"Response has been written to {output_file_name}")
+        except IOError:
+            logging.error(f"Unable to write to file: {output_file_name}")
+            raise
+
+    except Exception as e:
+        logging.error(f"An error occurred while processing folder {folder_path}: {str(e)}")
+        logging.error(traceback.format_exc())
+
+# --- Combined processing and analysis logic ---
+
+def process_directory_and_analyze(root_directory):
+    try:
+        api_key = read_file('api.txt')
+        system_prompt = read_file('image_prompt.txt')
+        user_prompt = read_file('input')
+        client = anthropic.Anthropic(api_key=api_key)
+
+        for subdir, dirs, files in os.walk(root_directory):
+            jpeg_files = [f for f in files if f.lower().endswith(('.jpg', '.jpeg'))]
+            if jpeg_files:
+                logging.info(f"Processing directory: {subdir}")
+                process_folder(subdir, client, system_prompt, user_prompt)
+                logging.info("Waiting 60 seconds before processing the next folder...")
+                time.sleep(60)  # Rate limiting to avoid overwhelming the API
+            else:
+                logging.info(f"Skipping directory {subdir} as it contains no JPEG files.")
+    
+    except Exception as e:
+        logging.error(f"An error occurred during directory analysis: {str(e)}")
+        logging.error(traceback.format_exc())

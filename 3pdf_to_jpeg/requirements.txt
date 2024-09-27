@@ -1,0 +1,3 @@
+google-cloud-storage
+google-auth
+pdf2image

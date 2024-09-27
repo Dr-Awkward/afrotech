@@ -1,0 +1,9 @@
+functions-framework
+google-cloud
+google-cloud-core
+googleapis-common-protos
+google-cloud-storage
+pdf2image
+google-cloud-pubsub
+anthropic
+pillow
