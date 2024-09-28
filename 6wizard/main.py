@@ -66,7 +66,7 @@ def get_chatgpt_response(messages, system_prompt):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",  
             messages=messages,
-            max_tokens=1500,
+            max_tokens=4096,
             temperature=0.0
         )
         return response.choices[0].message.content
