@@ -5,4 +5,4 @@ google-cloud-storage==1.42.0
 google-auth==2.3.3
 requests==2.26.0
 python-dotenv==0.19.1
-Werkzeug=2.2.2
+Werkzeug==2.2.2
