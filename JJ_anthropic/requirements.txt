@@ -1,7 +1,0 @@
-anthropic
-Flask
-Flask-SocketIO
-google-cloud-storage
-google-auth
-requestspython-dotenv
-google-auth-oauthlib

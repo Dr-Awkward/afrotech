@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Intake Interview</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        .interview p {
+            margin-bottom: 10px;
+        }
+        .soap-note h3 {
+            color: #3498db;
+        }
+        .soap-note p {
+            margin-left: 20px;
+        }
+        .toggle-btn {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .toggle-btn:hover {
+            background-color: #2980b9;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Patient Intake Interview</h1>
+        
+        <div class="section interview">
+            <h2>Interview Transcript</h2>
+            <button class="toggle-btn" onclick="toggleLanguage()">Toggle Language</button>
+            <div id="urdu-transcript">
+                <!-- Urdu transcript here -->
+            </div>
+            <div id="english-transcript" class="hidden">
+                <!-- English transcript here -->
+            </div>
+        </div>
+        
+        <div class="section soap-note">
+            <h2>SOAP Note</h2>
+            <h3>S: Subjective</h3>
+            <!-- Subjective content here -->
+            <h3>A: Assessment</h3>
+            <!-- Assessment content here -->
+        </div>
+    </div>
+
+    <script>
+        function toggleLanguage() {
+            const urduTranscript = document.getElementById('urdu-transcript');
+            const englishTranscript = document.getElementById('english-transcript');
+            urduTranscript.classList.toggle('hidden');
+            englishTranscript.classList.toggle('hidden');
+        }
+
+        // Populate transcripts
+        document.getElementById('urdu-transcript').innerHTML = `
+            <p><strong>JJ:</strong> Hello, what language do you speak?</p>
+            <p><strong>Patient:</strong> اردو (Urdu)</p>
+            <!-- Add the rest of the Urdu transcript here -->
+        `;
+
+        document.getElementById('english-transcript').innerHTML = `
+            <h2>Translated Transcript:</h2>
+            <p><strong>JJ:</strong> Hello. How can I help you?</p>
+            <p><strong>Patient:</strong> I'm very worried. I've been feeling some strange changes and I'm afraid I might be pregnant.</p>
+<p><strong>JJ:</strong> I understand. Please tell me your name and phone number.</p>
+<p><strong>Patient:</strong> My name is Fatima and my phone number is 0300-1234567.</p>
+<p><strong>JJ:</strong> Thank you. How old are you and what symptoms are you experiencing?</p>
+<p><strong>Patient:</strong> I'm 24 years old. I'm experiencing nausea, fatigue, and abdominal pain. My period is also late.</p>
+<p><strong>JJ:</strong> Do you have any allergies or are you taking any medications?</p>
+<p><strong>Patient:</strong> I don't have any allergies and I'm not taking any medications.</p>
+<p><strong>JJ:</strong> Are there any medical issues in your family?</p>
+<p><strong>Patient:</strong> My mother has diabetes.</p>
+<p><strong>JJ:</strong> Alright. We'll examine you. Please have a seat and wait for your number to be called.</p>
+<p><strong>Patient:</strong> Thank you. Please, keep this confidential. If my parents find out, I could lose my inheritance.</p>
+<p><strong>JJ:</strong> Don't worry. Your information will be kept confidential. Please wait.</p>
+</div>
+ // Populate SOAP note
+<script>        
+document.querySelector('.soap-note').innerHTML += `
+            <p><strong>Chief Complaint (CC):</strong> "I'm afraid I might be pregnant."</p>
+            <p><strong>History of Present Illness (HPI):</strong> 
+            24-year-old female presents with concerns of possible pregnancy. Patient reports experiencing nausea, fatigue, and abdominal pain. She also mentions that her menstrual period is late. The onset of symptoms is not specified, but the patient appears distressed about the possibility of pregnancy.</p>
+        
+        `;
+    </script>
+</body>
+</html>
+<div class="soap-note">
+<h2>SOAP Note:</h2>
+<h3>S: Subjective</h3>
+<p><strong>Chief Complaint (CC):</strong> "I'm afraid I might be pregnant."</p>
+<p><strong>History of Present Illness (HPI):</strong> 
+24-year-old female presents with concerns of possible pregnancy. Patient reports experiencing nausea, fatigue, and abdominal pain. She also mentions that her menstrual period is late. The onset of symptoms is not specified, but the patient appears distressed about the possibility of pregnancy.</p>
+<p><strong>OPQRST:</strong><br>
+Onset: Not specified<br>
+Palliating/Provoking factors: Not specified<br>
+Quality: Nausea, fatigue, abdominal pain<br>
+Radiation: Not specified<br>
+Severity: Not specified<br>
+Timing: Recent, with late menstrual period</p>
+<p><strong>Pertinent Medical History:</strong><br>
+Allergies: None reported<br>
+Medications: None reported<br>
+Past Medical History: No significant past medical history reported<br>
+Social History: Patient expresses concern about potential loss of inheritance if parents discover possible pregnancy, suggesting complex family dynamics and potential financial dependence</p>
+<p><strong>Family History:</strong> Mother has diabetes</p>
+<h3>A: Assessment</h3>
+<p><strong>Differential Diagnoses:</strong>
+1. Pregnancy (primary suspicion based on symptoms and patient concerns)
+2. Stress-induced menstrual irregularity
+3. Hormonal imbalance
+4. Early-stage gastrointestinal issue
+<strong>Severity:</strong> Patient appears stable but distressed. The situation is potentially critical due to the patient's expressed concerns about confidentiality and potential familial consequences.</p>
+<p>Note: Given the sensitive nature of the patient's situation and her request for confidentiality, it is crucial to handle this case with utmost discretion and provide appropriate counseling and support.</p>
+</div>

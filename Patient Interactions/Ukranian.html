@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Department Intake Interview</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .conversation {
+            background-color: #ecf0f1;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .conversation p {
+            margin: 10px 0;
+        }
+        .conversation strong {
+            color: #2c3e50;
+        }
+        .soap-note {
+            background-color: #e8f6f3;
+            border: 1px solid #1abc9c;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .soap-note h3 {
+            color: #16a085;
+            margin-top: 0;
+        }
+        .soap-note p {
+            margin: 10px 0;
+        }
+        #languageToggle {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        #languageToggle:hover {
+            background-color: #2980b9;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Emergency Department Intake Interview</h1>
+        
+        <button id="languageToggle">Toggle Language</button>
+
+        <div class="section">
+            <h2>Interview Transcript</h2>
+            <div id="ukrainianTranscript" class="conversation">
+                <p><strong>JJ:</strong> Добрий день, Адаме. Що привело вас сьогодні до відділення невідкладної допомоги?</p>
+                <p><strong>Patient:</strong> У мене сильний головний біль. Я впав тиждень тому, і зараз не зовсім розумію, де я.</p>
+                <p><strong>JJ:</strong> Зрозуміло. Скажіть, будь ласка, вашу дату народження та номер телефону.</p>
+                <p><strong>Patient:</strong> 15 березня 1949 року. Мій телефон... я не пам'ятаю.</p>
+                <p><strong>JJ:</strong> Добре. Коли почався головний біль?</p>
+                <p><strong>Patient:</strong> Після падіння. Він стає все гіршим.</p>
+                <p><strong>JJ:</strong> Як би ви описали біль? Гострий, тупий?</p>
+                <p><strong>Patient:</strong> Пульсуючий. Дуже сильний.</p>
+                <p><strong>JJ:</strong> За шкалою від 0 до 10, наскільки сильний біль?</p>
+                <p><strong>Patient:</strong> 9. Я ледве можу думати.</p>
+                <p><strong>JJ:</strong> У вас є нудота або блювота?</p>
+                <p><strong>Patient:</strong> Так, мене нудить.</p>
+                <p><strong>JJ:</strong> Ви приймаєте якісь ліки?</p>
+                <p><strong>Patient:</strong> Щось від тиску... не пам'ятаю назву.</p>
+                <p><strong>JJ:</strong> У вас є алергія на ліки?</p>
+                <p><strong>Patient:</strong> Ні, немає.</p>
+                <p><strong>JJ:</strong> Добре, Адаме. Ми зараз зареєструємо вас. Будь ласка, сядьте і чекайте, поки вас викличуть. Медична допомога буде надана якнайшвидше.</p>
+            </div>
+            <div id="englishTranscript" class="conversation hidden">
+                <p><strong>JJ:</strong> Good afternoon, Adam. What brought you to the emergency department today?</p>
+                <p><strong>Patient:</strong> I have a severe headache. I fell a week ago, and now I'm not quite sure where I am.</p>
+                <p><strong>JJ:</strong> I understand. Please tell me your date of birth and phone number.</p>
+                <p><strong>Patient:</strong> March 15, 1949. My phone... I don't remember.</p>
+                <p><strong>JJ:</strong> Okay. When did the headache start?</p>
+                <p><strong>Patient:</strong> After the fall. It's getting worse.</p>
+                <p><strong>JJ:</strong> How would you describe the pain? Sharp, dull?</p>
+                <p><strong>Patient:</strong> Throbbing. Very intense.</p>
+                <p><strong>JJ:</strong> On a scale of 0 to 10, how severe is the pain?</p>
+                <p><strong>Patient:</strong> 9. I can barely think.</p>
+                <p><strong>JJ:</strong> Do you have any nausea or vomiting?</p>
+                <p><strong>Patient:</strong> Yes, I feel nauseous.</p>
+                <p><strong>JJ:</strong> Are you taking any medications?</p>
+                <p><strong>Patient:</strong> Something for blood pressure... I don't remember the name.</p>
+                <p><strong>JJ:</strong> Do you have any allergies to medications?</p>
+                <p><strong>Patient:</strong> No, I don't.</p>
+                <p><strong>JJ:</strong> Alright, Adam. We'll register you now. Please have a seat and wait until you're called. Medical attention will be provided as soon as possible.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>SOAP Note</h2>
+            <div class="soap-note">
+                <h3>S: Subjective</h3>
+                <p><strong>Chief Complaint (CC):</strong> Severe headache and confusion</p>
+                <p><strong>History of Present Illness (HPI):</strong> Adam is a 74-year-old male who presents to the ED with a severe headache that started after a fall one week ago. The patient reports the headache is getting worse and rates the pain as 9/10. He describes the pain as throbbing and very intense. Associated symptoms include nausea and confusion. The patient is unsure of his current location, indicating possible disorientation.</p>
+                <p><strong>OPQRST:</strong><br>
+                Onset: One week ago, after a fall<br>
+                Palliating/Provoking factors: Not specified<br>
+                Quality: Throbbing, very intense<br>
+                Radiation: Not specified<br>
+                Severity: 9/10<br>
+                Timing: Continuous, worsening</p>
+                <p><strong>Pertinent Medical History:</strong><br>
+                Allergies: No known drug allergies<br>
+                Medications: Unspecified blood pressure medication<br>
+                Past Medical History: Hypertension (inferred from medication)<br>
+                Social History: Not obtained due to patient's condition</p>
+                <h3>A: Assessment</h3>
+                <p><strong>Differential Diagnosis:</strong><br>
+                1. Subdural hematoma (high suspicion given fall history, age, and symptoms)<br>
+                2. Intracranial hemorrhage<br>
+                3. Severe concussion with post-concussive syndrome<br>
+                4. Stroke<br>
+                5. Meningitis</p>
+                <p><strong>Severity:</strong> Critical - patient presents with severe headache, confusion, and disorientation following head trauma in an elderly individual. Immediate medical attention required.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ukrainianTranscript = document.getElementById('ukrainianTranscript');
+        const englishTranscript = document.getElementById('englishTranscript');
+        const languageToggle = document.getElementById('languageToggle');
+
+        languageToggle.addEventListener('click', () => {
+            ukrainianTranscript.classList.toggle('hidden');
+            englishTranscript.classList.toggle('hidden');
+            languageToggle.textContent = ukrainianTranscript.classList.contains('hidden') ? 'Show Ukrainian' : 'Show English';
+        });
+    </script>
+</body>
+</html>
