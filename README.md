@@ -1,5 +1,3 @@
-Here's a README in markdown format explaining the technical process, tailored for the tech industry and with an eye towards the AfroTech hackathon contest:
-
 # AI-Powered Document Processing Pipeline
 
 ## Overview
