@@ -1,3 +1,6 @@
+**YOU WILL HAVE TO LOGIN AND SEND THE DEV TEAM AN EMAIL TO RECEIVE YOUR PROCESSED DOCUMENTS,**
+We are in a testing phase and handle HIPAA and DPA protected information and out of an abundance of caution the backend will only send emails to allowlisted domains. 
+
 # AI-Powered Document Processing Pipeline
 
 ## Overview
